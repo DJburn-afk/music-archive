@@ -230,7 +230,7 @@ let archive = JSON.parse(localStorage.getItem("musicArchive") || "[]");
 let editingId = null;
 
 function saveToStorage() {
-localStorage.setItem("haruArchive", JSON.stringify(archive));
+localStorage.setItem("musicArchive", JSON.stringify(archive));
 }
 
 function saveIssue() {
@@ -434,7 +434,10 @@ ${(keyword && item.matchedArticles.length > 0
 
 .map(article => `
 <div class="article">
-${article}
+  ${article.replace(
+    /(https?:\/\/[^\s]+)/g,
+    '<a href="$1" target="_blank" style="color:#7ab7ff;">$1</a>'
+  )}
 </div>
 `)
 
