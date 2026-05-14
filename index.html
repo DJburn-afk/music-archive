@@ -241,6 +241,22 @@ const articles = document.getElementById("articles").value.trim();
 const memo = document.getElementById("memo").value.trim();
 
 if (!issue || !articles) {
+const exists = archive.some(
+  item =>
+    item.issue
+      .toLowerCase()
+      .replace(/\s+/g, "") ===
+    issue
+      .toLowerCase()
+      .replace(/\s+/g, "")
+);
+
+if (exists && !editingId) {
+
+  alert("이미 등록된 노래입니다!");
+
+  return;
+}
 alert("제목과 아티스트는 꼭 입력해주세요!");
 return;
 }
