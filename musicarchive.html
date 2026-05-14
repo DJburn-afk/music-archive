@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>뮤직 아카이브 by DJ BURN</title>
+
+<style>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: sans-serif;
+}
+
+body {
+background: #111;
+color: white;
+padding: 30px;
+}
+
+.container {
+max-width: 1200px;
+margin: auto;
+}
+
+h1 {
+font-size: 48px;
+margin-bottom: 10px;
+}
+
+.sub {
+color: #aaa;
+margin-bottom: 30px;
+}
+
+.layout {
+display: grid;
+grid-template-columns: 350px 1fr;
+gap: 25px;
+}
+
+.card {
+background: #1d1d1d;
+border-radius: 24px;
+padding: 24px;
+border: 1px solid #333;
+}
+
+input,
+textarea {
+width: 100%;
+margin-bottom: 15px;
+padding: 14px;
+border-radius: 14px;
+border: 1px solid #444;
+background: #2a2a2a;
+color: white;
+font-size: 15px;
+}
+
+textarea {
+resize: vertical;
+}
+
+button {
+border: none;
+border-radius: 14px;
+padding: 14px 18px;
+cursor: pointer;
+font-weight: bold;
+}
+
+.save-btn {
+width: 100%;
+background: white;
+color: black;
+}
+
+.topbar {
+display: flex;
+gap: 12px;
+margin-bottom: 20px;
+flex-wrap: wrap;
+}
+
+.search {
+flex: 1;
+min-width: 250px;
+margin-bottom: 0;
+}
+
+.secondary {
+background: #444;
+color: white;
+}
+
+.issue {
+margin-bottom: 20px;
+}
+
+.issue-header {
+display: flex;
+justify-content: space-between;
+gap: 15px;
+margin-bottom: 15px;
+}
+
+.issue-title {
+font-size: 28px;
+font-weight: bold;
+}
+
+.date {
+color: #999;
+margin-top: 5px;
+}
+
+.article {
+background: #2b2b2b;
+padding: 12px 15px;
+border-radius: 12px;
+margin-bottom: 10px;
+}
+
+.memo {
+margin-top: 15px;
+background: #262626;
+padding: 15px;
+border-radius: 14px;
+color: #ccc;
+line-height: 1.6;
+}
+
+.delete-btn {
+background: #5f2222;
+color: #ffb3b3;
+}
+
+.empty {
+text-align: center;
+color: #888;
+padding: 60px 20px;
+}
+
+@media (max-width: 900px) {
+.layout {
+grid-template-columns: 1fr;
+}
+
+h1 {
+font-size: 36px;
+}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>뮤직 아카이브 by DJ BURN</h1>
+<p class="sub">음악 검색 DJ BURN 데이터베이스</p>
+
+<div class="layout">
+
+
+<div class="card">
+
+<h2 style="margin-bottom:20px;">음악 추가</h2>
+
+<input type="text" id="issue" placeholder="제목">
+
+<input type="date" id="date">
+
+<textarea id="articles" rows="8" placeholder="정보"></textarea>
+
+<textarea id="memo" rows="4" placeholder="아티스트"></textarea>
+
+<button class="save-btn" onclick="saveIssue()">
+아카이브 저장
+</button>
+
+</div>
+
+<div>
+
+<div class="card topbar">
+
+<input
+type="text"
+id="search"
+class="search"
+placeholder="검색"
+oninput="renderIssues()"
+>
+
+<button class="secondary" onclick="backupData()">
+백업
+</button>
+
+<label>
+<button class="secondary">
+불러오기
+</button>
+
+<input
+type="file"
+hidden
+onchange="loadData(event)"
+>
+</label>
+
+</div>
+
+<div id="issues"></div>
+
+</div>
+
+
+</div>
+
+</div>
+
+<script>
+
+let archive = JSON.parse(localStorage.getItem("musicArchive") || "[]");
+let editingId = null;
+
+function saveToStorage() {
+localStorage.setItem("haruArchive", JSON.stringify(archive));
+}
+
+function saveIssue() {
+
+const issue = document.getElementById("issue").value.trim();
+const date = document.getElementById("date").value;
+const articles = document.getElementById("articles").value.trim();
+const memo = document.getElementById("memo").value.trim();
+
+if (!issue || !articles) {
+alert("제목과 아티스트는 꼭 입력해주세요!");
+return;
+}
+
+const newData = {
+issue,
+date,
+memo,
+articles: articles
+.split("\n")
+.map(a => a.trim())
+.filter(Boolean)
+};
+
+if (editingId) {
+
+
+archive = archive.map(item =>
+item.id === editingId
+? { ...item, ...newData }
+: item
+);
+
+editingId = null;
+
+document.querySelector(".save-btn").innerText =
+"아카이브 저장";
+
+
+} else {
+
+
+archive.unshift({
+id: Date.now(),
+...newData
+});
+
+
+}
+
+saveToStorage();
+renderIssues();
+
+document.getElementById("issue").value = "";
+document.getElementById("date").value = "";
+document.getElementById("articles").value = "";
+document.getElementById("memo").value = "";
+}
+
+function deleteIssue(id) {
+
+if (!confirm("정말 삭제할까요?")) return;
+
+archive = archive.filter(item => item.id !== id);
+
+saveToStorage();
+renderIssues();
+}
+function editIssue(id) {
+
+const item = archive.find(item => item.id === id);
+
+if (!item) return;
+
+document.getElementById("issue").value = item.issue;
+document.getElementById("date").value = item.date;
+document.getElementById("articles").value =
+item.articles.join("\n");
+
+document.getElementById("memo").value = item.memo;
+
+editingId = id;
+
+document.querySelector(".save-btn").innerText =
+"수정 완료";
+}
+
+
+function renderIssues() {
+
+const keyword = document
+.getElementById("search")
+.value
+.toLowerCase()
+.replace(/\s+/g, "");
+
+const container = document.getElementById("issues");
+
+const filtered = archive
+.map(item => {
+
+const matchedArticles = item.articles.filter(article =>
+article
+.toLowerCase()
+.replace(/\s+/g, "")
+.includes(keyword)
+);
+
+const issueMatch =
+item.issue
+.toLowerCase()
+.replace(/\s+/g, "")
+.includes(keyword)
+
+||
+
+item.memo
+.toLowerCase()
+.replace(/\s+/g, "")
+.includes(keyword);
+
+return {
+...item,
+matchedArticles,
+issueMatch
+};
+})
+
+.filter(item =>
+keyword === ""
+||
+item.issueMatch
+||
+item.matchedArticles.length > 0
+);
+
+if (filtered.length === 0) {
+
+container.innerHTML = `
+<div class="card empty">
+검색 결과가 없습니다.
+</div>
+`;
+
+return;
+}
+
+container.innerHTML = filtered
+.map(item => `
+
+<div class="card issue">
+
+<div class="issue-header">
+
+<div>
+<div class="issue-title">
+${item.issue}
+</div>
+
+<div class="date">
+${item.date || "날짜 없음"}
+</div>
+</div>
+
+<div style="display:flex; gap:8px;">
+
+<button
+class="secondary"
+onclick="editIssue(${item.id})"
+
+>
+
+
+수정
+
+
+</button>
+
+<button
+class="delete-btn"
+onclick="deleteIssue(${item.id})"
+
+>
+
+
+삭제
+
+
+</button>
+
+</div>
+
+
+</div>
+
+<div>
+
+${(keyword && item.matchedArticles.length > 0
+? item.matchedArticles
+: item.articles)
+
+.map(article => `
+<div class="article">
+${article}
+</div>
+`)
+
+.join("")
+}
+
+</div>
+
+${
+item.memo
+? `<div class="memo">${item.memo}</div>`
+: ""
+}
+
+</div>
+
+`)
+
+.join("");
+}
+
+function backupData() {
+
+const blob = new Blob(
+[JSON.stringify(archive, null, 2)],
+{
+type: "application/json"
+}
+);
+
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement("a");
+
+a.href = url;
+a.download = "haru_music_bar_archive.json";
+
+a.click();
+}
+
+function loadData(event) {
+
+const file = event.target.files[0];
+
+if (!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(e) {
+
+try {
+
+archive = JSON.parse(e.target.result);
+
+saveToStorage();
+renderIssues();
+
+alert("아카이브를 불러왔습니다!");
+
+} catch {
+
+alert("올바른 백업 파일이 아닙니다.");
+}
+};
+
+reader.readAsText(file);
+}
+
+renderIssues();
+
+</script>
+
+</body>
+</html>
