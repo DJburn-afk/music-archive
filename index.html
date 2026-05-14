@@ -201,17 +201,19 @@ oninput="renderIssues()"
 백업
 </button>
 
-<label>
-<button class="secondary">
-불러오기
-</button>
-
 <input
 type="file"
+id="fileInput"
 hidden
 onchange="loadData(event)"
 >
-</label>
+
+<button
+class="secondary"
+onclick="document.getElementById('fileInput').click()"
+>
+불러오기
+</button>
 
 </div>
 
@@ -242,20 +244,20 @@ const memo = document.getElementById("memo").value.trim();
 
 if (!issue || !articles) {
 const exists = archive.some(
-  item =>
-    item.issue
-      .toLowerCase()
-      .replace(/\s+/g, "") ===
-    issue
-      .toLowerCase()
-      .replace(/\s+/g, "")
+item =>
+item.issue
+.toLowerCase()
+.replace(/\s+/g, "") ===
+issue
+.toLowerCase()
+.replace(/\s+/g, "")
 );
 
 if (exists && !editingId) {
 
-  alert("이미 등록된 노래입니다!");
+alert("이미 등록된 노래입니다!");
 
-  return;
+return;
 }
 alert("제목과 아티스트는 꼭 입력해주세요!");
 return;
@@ -450,10 +452,10 @@ ${(keyword && item.matchedArticles.length > 0
 
 .map(article => `
 <div class="article">
-  ${article.replace(
-    /(https?:\/\/[^\s]+)/g,
-    '<a href="$1" target="_blank" style="color:#7ab7ff;">$1</a>'
-  )}
+${article.replace(
+/(https?:\/\/[^\s]+)/g,
+'<a href="$1" target="_blank" style="color:#7ab7ff;">$1</a>'
+)}
 </div>
 `)
 
