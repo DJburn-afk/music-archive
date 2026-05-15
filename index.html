@@ -176,12 +176,12 @@ font-size: 36px;
 <input
 type="text"
 id="date"
-placeholder="가수명 입력"
+placeholder="가수"
 >
 
 <textarea id="articles" rows="8" placeholder="정보"></textarea>
 
-<textarea id="memo" rows="4" placeholder="아티스트"></textarea>
+<textarea id="memo" rows="4" placeholder="기타"></textarea>
 
 <button class="save-btn" onclick="saveIssue()">
 아카이브 저장
@@ -263,7 +263,7 @@ alert("이미 등록된 노래입니다!");
 
 return;
 }
-alert("제목과 아티스트는 꼭 입력해주세요!");
+alert("제목과 가수는 꼭 입력해주세요!");
 return;
 }
 
@@ -503,7 +503,7 @@ const url = URL.createObjectURL(blob);
 const a = document.createElement("a");
 
 a.href = url;
-a.download = "haru_music_bar_archive.json";
+a.download = "music_archive.json";
 
 a.click();
 }
