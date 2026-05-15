@@ -232,14 +232,12 @@ onclick="document.getElementById('fileInput').click()"
 
 <script>
 
-let archive = JSON.parse(localStorage.getItem("musicArchive") || "[]");
+let archive = [];
 let editingId = null;
 
-function saveToStorage() {
-localStorage.setItem("musicArchive", JSON.stringify(archive));
-}
 
-function saveIssue() {
+
+async function saveIssue() {
 
 const issue = document.getElementById("issue").value.trim();
 const date = document.getElementById("date").value;
@@ -303,8 +301,29 @@ id: Date.now(),
 
 }
 
-saveToStorage();
-renderIssues();
+const {
+collection,
+addDoc,
+doc,
+updateDoc
+} = window.firebaseFunctions;
+
+if (editingId) {
+
+await updateDoc(
+doc(window.db, "musicArchive", editingId),
+newData
+);
+
+} else {
+
+await addDoc(
+collection(window.db, "musicArchive"),
+newData
+);
+}
+
+await loadFirebaseData();
 
 document.getElementById("issue").value = "";
 document.getElementById("date").value = "";
@@ -536,7 +555,32 @@ alert("올바른 백업 파일이 아닙니다.");
 reader.readAsText(file);
 }
 
+async function loadFirebaseData() {
+
+const {
+collection,
+getDocs
+} = window.firebaseFunctions;
+
+const querySnapshot = await getDocs(
+collection(window.db, "musicArchive")
+);
+
+archive = [];
+
+querySnapshot.forEach((docItem) => {
+
+archive.push({
+id: docItem.id,
+...docItem.data()
+});
+
+});
+
 renderIssues();
+}
+
+loadFirebaseData();
 
 </script>
 
