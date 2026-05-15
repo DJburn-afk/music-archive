@@ -279,30 +279,10 @@ articles: articles
 
 if (editingId) {
 
-
-archive = archive.map(item =>
-item.id === editingId
-? { ...item, ...newData }
-: item
-);
-
-editingId = null;
-
 document.querySelector(".save-btn").innerText =
 "아카이브 저장";
 
-
-} else {
-
-
-archive.unshift({
-id: Date.now(),
-...newData
-});
-
-
 }
-
 const {
 collection,
 addDoc,
