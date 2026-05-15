@@ -244,27 +244,29 @@ const date = document.getElementById("date").value;
 const articles = document.getElementById("articles").value.trim();
 const memo = document.getElementById("memo").value.trim();
 
-if (!issue || !articles) {
+if (!issue || !date) {
+
+  alert("제목과 가수는 꼭 입력해주세요!");
+
+  return;
+}
+
 const exists = archive.some(
-item =>
-item.issue
-.toLowerCase()
-.replace(/\s+/g, "") ===
-issue
-.toLowerCase()
-.replace(/\s+/g, "")
+  item =>
+    item.issue
+      .toLowerCase()
+      .replace(/\s+/g, "") ===
+    issue
+      .toLowerCase()
+      .replace(/\s+/g, "")
 );
 
 if (exists && !editingId) {
 
-alert("이미 등록된 노래입니다!");
+  alert("이미 등록된 노래입니다!");
 
-return;
+  return;
 }
-alert("제목과 가수는 꼭 입력해주세요!");
-return;
-}
-
 const newData = {
 issue,
 date,
@@ -331,15 +333,22 @@ document.getElementById("articles").value = "";
 document.getElementById("memo").value = "";
 }
 
-function deleteIssue(id) {
+async function deleteIssue(id) {
 
-if (!confirm("정말 삭제할까요?")) return;
+  if (!confirm("정말 삭제할까요?")) return;
 
-archive = archive.filter(item => item.id !== id);
+  const {
+    deleteDoc,
+    doc
+  } = window.firebaseFunctions;
 
-saveToStorage();
-renderIssues();
+  await deleteDoc(
+    doc(window.db, "musicArchive", id)
+  );
+
+  await loadFirebaseData();
 }
+
 function editIssue(id) {
 
 const item = archive.find(item => item.id === id);
