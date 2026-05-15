@@ -268,13 +268,13 @@ if (exists && !editingId) {
   return;
 }
 const newData = {
-issue,
-date,
-memo,
-articles: articles
-.split("\n")
-.map(a => a.trim())
-.filter(Boolean)
+  issue,
+  date,
+  memo,
+  articles: articles
+    .split("\n")
+    .map(a => a.trim())
+    .filter(Boolean)
 };
 
 if (editingId) {
