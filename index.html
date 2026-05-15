@@ -173,11 +173,15 @@ font-size: 36px;
 
 <input type="text" id="issue" placeholder="제목">
 
-<input type="date" id="date">
+<input
+type="text"
+id="date"
+placeholder="가수"
+>
 
 <textarea id="articles" rows="8" placeholder="정보"></textarea>
 
-<textarea id="memo" rows="4" placeholder="아티스트"></textarea>
+<textarea id="memo" rows="4" placeholder="기타"></textarea>
 
 <button class="save-btn" onclick="saveIssue()">
 아카이브 저장
@@ -201,17 +205,19 @@ oninput="renderIssues()"
 백업
 </button>
 
-<label>
-<button class="secondary">
-불러오기
-</button>
-
 <input
 type="file"
+id="fileInput"
 hidden
 onchange="loadData(event)"
 >
-</label>
+
+<button
+class="secondary"
+onclick="document.getElementById('fileInput').click()"
+>
+불러오기
+</button>
 
 </div>
 
@@ -242,22 +248,22 @@ const memo = document.getElementById("memo").value.trim();
 
 if (!issue || !articles) {
 const exists = archive.some(
-  item =>
-    item.issue
-      .toLowerCase()
-      .replace(/\s+/g, "") ===
-    issue
-      .toLowerCase()
-      .replace(/\s+/g, "")
+item =>
+item.issue
+.toLowerCase()
+.replace(/\s+/g, "") ===
+issue
+.toLowerCase()
+.replace(/\s+/g, "")
 );
 
 if (exists && !editingId) {
 
-  alert("이미 등록된 노래입니다!");
+alert("이미 등록된 노래입니다!");
 
-  return;
+return;
 }
-alert("제목과 아티스트는 꼭 입력해주세요!");
+alert("제목과 가수는 꼭 입력해주세요!");
 return;
 }
 
@@ -356,7 +362,15 @@ article
 );
 
 const issueMatch =
+
 item.issue
+.toLowerCase()
+.replace(/\s+/g, "")
+.includes(keyword)
+
+||
+
+(item.date || "")
 .toLowerCase()
 .replace(/\s+/g, "")
 .includes(keyword)
@@ -407,7 +421,7 @@ ${item.issue}
 </div>
 
 <div class="date">
-${item.date || "날짜 없음"}
+${item.date || "가수명 없음"}
 </div>
 </div>
 
@@ -450,10 +464,10 @@ ${(keyword && item.matchedArticles.length > 0
 
 .map(article => `
 <div class="article">
-  ${article.replace(
-    /(https?:\/\/[^\s]+)/g,
-    '<a href="$1" target="_blank" style="color:#7ab7ff;">$1</a>'
-  )}
+${article.replace(
+/(https?:\/\/[^\s]+)/g,
+'<a href="$1" target="_blank" style="color:#7ab7ff;">$1</a>'
+)}
 </div>
 `)
 
@@ -489,7 +503,7 @@ const url = URL.createObjectURL(blob);
 const a = document.createElement("a");
 
 a.href = url;
-a.download = "haru_music_bar_archive.json";
+a.download = "music_archive.json";
 
 a.click();
 }
